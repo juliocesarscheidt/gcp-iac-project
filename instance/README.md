@@ -11,6 +11,7 @@ GCLOUD_KEYFILE_JSON
 export GOOGLE_CLOUD_KEYFILE_JSON="$PWD/GOOGLE_CLOUD_KEYFILE_JSON.json"
 
 
+
 ######## generate ssh key ########
 USERNAME=google
 
@@ -23,6 +24,7 @@ ssh -i $PWD/[KEY_NAME] [USERNAME]@[EXTERNAL_IP]
 ssh -i $PWD/ssh_key ${USERNAME}@$(terraform output vm_instance_nat_ip)
 
 
+
 ######## terraform ########
 terraform init
 terraform fmt -recursive -write=true
@@ -33,6 +35,7 @@ terraform refresh
 terraform show
 terraform output
 terraform destroy -auto-approve
+
 
 
 ######## gcloud ########
