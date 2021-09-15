@@ -27,6 +27,12 @@ variable "instance_image" {
   description = "Instance Image"
 }
 
+variable "instance_username" {
+  type        = string
+  default     = "google"
+  description = "Instance Username"
+}
+
 variable "env" {
   type        = string
   default     = "dev"

@@ -1,52 +1,14 @@
-# Commands
+# GCP CloudRun
 
-## Docs
-
-<https://cloud.google.com/run/docs/mapping-custom-domains>
-<https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_domain_mapping>
-<https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set>
-<https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service>
+## Up and Running
 
 ```bash
 
-######## credentials by environment variables ########
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference
-GOOGLE_CREDENTIALS
-GOOGLE_CLOUD_KEYFILE_JSON
-GCLOUD_KEYFILE_JSON
-
+######## set GCP credential file ########
 export GOOGLE_CLOUD_KEYFILE_JSON="$PWD/GOOGLE_CLOUD_KEYFILE_JSON.json"
 
 
-
-https://www.google.com/webmasters/verification
-https://www.google.com/webmasters/verification/verification?domain=ongcp.blackdevs.com.br
-
-https://search.google.com/search-console
-
-
-gcloud run services describe cloudrun-service-dev \
-  --project vue-project-59c3b \
-  --region us-east1
-
-gcloud run services describe cloudrun-service-dev \
-  --project vue-project-59c3b \
-  --region us-east1 \
-  --log-http
-
-
-gcloud beta run domain-mappings describe \
-  --domain cloudrunapp.ongcp.blackdevs.com.br \
-  --project vue-project-59c3b \
-  --region us-east1
-
-
-
-docker image pull juliocesarmidia/http-simple-api:v1.0.0
-
-docker image tag juliocesarmidia/http-simple-api:v1.0.0 gcr.io/vue-project-59c3b/http-simple-api:v1.0.0
-
-
+######## configure docker with GCP registry ########
 # https://cloud.google.com/container-registry/docs/advanced-authentication
 gcloud auth configure-docker
 
@@ -66,35 +28,47 @@ cat ~/.docker/config.json
 }
 
 
-# docker image push HOSTNAME/PROJECT-ID/IMAGE:TAG
-docker image push gcr.io/vue-project-59c3b/http-simple-api:v1.0.0
+######## push image to GCP registry ########
+export PROJECT_ID="YOUR_GCP_PROJECT_ID"
+export IMAGE_NAME="http-simple-api"
+export IMAGE_TAG="v1.0.0"
+
+docker image pull "juliocesarmidia/${IMAGE_NAME}:${IMAGE_TAG}"
+
+docker image tag \
+  "juliocesarmidia/${IMAGE_NAME}:${IMAGE_TAG}" \
+  "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+docker image push "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
 
 
+# in order to deploy with a domain-mapping, verifying the domain on google is required, the link is the following:
+https://www.google.com/webmasters/verification
+https://www.google.com/webmasters/verification/verification?domain=${DOMAIN_HOST}
+# the search console
+https://search.google.com/search-console
 
-######## terraform ########
+
+######## deploy ########
 terraform init
-terraform fmt -recursive -write=true
+
 terraform validate
-terraform plan
-terraform apply -auto-approve
-terraform refresh
-terraform show
-terraform output
+
+terraform plan \
+  -var image_name="${IMAGE_NAME}" \
+  -var image_tag="${IMAGE_TAG}" \
+  -var cloud_mapping_enabled=false
+
+terraform apply \
+  -auto-approve \
+  -var image_name="${IMAGE_NAME}" \
+  -var image_tag="${IMAGE_TAG}" \
+  -var cloud_mapping_enabled=false
+
+######## test the service ########
+curl -X GET --url "$(terraform output cloudrun_service_url)"
+
+######## clean up ########
 terraform destroy -auto-approve
-
-
-
-######## gcloud ########
-# init gcloud
-gcloud init
-
-# list authentication
-gcloud auth list
-
-# list config
-gcloud config list
-
-# gcloud info about installation
-gcloud info
 
 ```

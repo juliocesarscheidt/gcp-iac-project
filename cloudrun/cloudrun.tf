@@ -4,7 +4,7 @@ resource "google_cloud_run_service" "cloudrun_service" {
   template {
     spec {
       containers {
-        image = "gcr.io/vue-project-59c3b/http-simple-api:v1.0.0"
+        image = "gcr.io/${var.project_id}/${var.image_name}:${var.image_tag}"
         env {
           name  = "API_PORT"
           value = 9000
@@ -67,13 +67,14 @@ output "dns_name" {
 }
 
 resource "google_cloud_run_domain_mapping" "cloud_run_domain_mapping" {
+  count    = var.cloud_mapping_enabled ? 1 : 0
   name     = local.dns_name
   location = var.region
   metadata {
     namespace = var.project_id
   }
   spec {
-    route_name = google_cloud_run_service.cloudrun_service.name
+    route_name       = google_cloud_run_service.cloudrun_service.name
     certificate_mode = "AUTOMATIC"
   }
 
@@ -81,17 +82,18 @@ resource "google_cloud_run_domain_mapping" "cloud_run_domain_mapping" {
 }
 
 output "cloud_run_domain_mapping" {
-  value       = google_cloud_run_domain_mapping.cloud_run_domain_mapping
+  value = length(google_cloud_run_domain_mapping.cloud_run_domain_mapping) > 0 ? google_cloud_run_domain_mapping.cloud_run_domain_mapping.0 : map()
 }
 
 output "cloud_run_domain_mapping_resource_records" {
-  value       = [for record in google_cloud_run_domain_mapping.cloud_run_domain_mapping.status.*.resource_records[0] : record.rrdata]
+  value = length(google_cloud_run_domain_mapping.cloud_run_domain_mapping) > 0 ? [for record in google_cloud_run_domain_mapping.cloud_run_domain_mapping.0.status.*.resource_records[0] : record.rrdata] : []
 }
 
 resource "google_dns_record_set" "cloud_run_recordset" {
+  count        = var.cloud_mapping_enabled ? 1 : 0
   managed_zone = data.google_dns_managed_zone.dns_zone.name
   name         = "cloudrunapp.${data.google_dns_managed_zone.dns_zone.dns_name}"
   type         = "CNAME"
-  rrdatas      = [for record in google_cloud_run_domain_mapping.cloud_run_domain_mapping.status.*.resource_records[0] : record.rrdata]
+  rrdatas      = [for record in google_cloud_run_domain_mapping.cloud_run_domain_mapping.0.status.*.resource_records[0] : record.rrdata]
   ttl          = 300
 }

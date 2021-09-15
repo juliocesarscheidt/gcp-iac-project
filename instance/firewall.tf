@@ -8,7 +8,7 @@ resource "google_compute_firewall" "vm_compute_firewall_ingress" {
   }
   allow {
     protocol = "tcp"
-    ports    = ["80", "443", "8080", "22"]
+    ports    = ["80", "443", "22"]
   }
   # source_tags = [var.env]
   source_ranges = ["0.0.0.0/0"]

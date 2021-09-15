@@ -20,9 +20,16 @@ variable "service_account_name" {
   description = "Service Account Name"
 }
 
-variable "dns_zone_name" {
+variable "image_name" {
   type        = string
-  description = "DNS Zone Name"
+  description = "Image Name"
+  default     = "http-simple-api"
+}
+
+variable "image_tag" {
+  type        = string
+  description = "Image Tag"
+  default     = "v1.0.0"
 }
 
 variable "env" {
@@ -30,3 +37,15 @@ variable "env" {
   default     = "dev"
   description = "Environment"
 }
+
+variable "cloud_mapping_enabled" {
+  type        = bool
+  description = "Enable Cloud Mapping"
+  default     = false
+}
+
+variable "dns_zone_name" {
+  type        = string
+  description = "DNS Zone Name"
+}
+
