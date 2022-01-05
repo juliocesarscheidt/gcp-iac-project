@@ -5,10 +5,14 @@ steps:
   env:
   - 'MESSAGE=Hello World From GCP'
 
-images:
-- 'gcr.io/$PROJECT_ID/gcp-iac-project'
+substitutions:
+  _TAG: $SHORT_SHA
 
-tags: ['latest', '$SHORT_SHA']
+images:
+- 'gcr.io/$PROJECT_ID/gcp-iac-project:${_TAG}'
+- 'gcr.io/$PROJECT_ID/gcp-iac-project:latest'
+
+tags: []
 
 options:
   logging: CLOUD_LOGGING_ONLY
