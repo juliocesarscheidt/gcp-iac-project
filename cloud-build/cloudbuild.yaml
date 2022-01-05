@@ -1,12 +1,18 @@
-steps:
-- name: 'gcr.io/cloud-builders/docker'
-  dir: 'cloud-build'
-  args: [ 'build', '--tag', 'gcr.io/$PROJECT_ID/gcp-iac-project', '.' ]
-  env:
-  - 'MESSAGE=Hello World From GCP'
 
 substitutions:
   _TAG: $SHORT_SHA
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  dir: 'cloud-build'
+  args: [
+    'build',
+    '--tag', 'gcr.io/$PROJECT_ID/gcp-iac-project:${_TAG}',
+    '--tag', 'gcr.io/$PROJECT_ID/gcp-iac-project:latest',
+    '.'
+  ]
+  env:
+  - 'MESSAGE=Hello World From GCP'
 
 images:
 - 'gcr.io/$PROJECT_ID/gcp-iac-project:${_TAG}'
