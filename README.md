@@ -7,3 +7,5 @@ This is project for studies about Google Cloud Platform features, using Terrafor
 - VM Instance: [Instance](./instance)
 
 - CloudRun: [CloudRun](./cloudrun)
+
+- Cloud Build: [Cloud Build](./cloud-build)
