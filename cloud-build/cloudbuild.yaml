@@ -3,6 +3,7 @@
 # tag it with the name of the image.
 steps:
 - name: 'docker'
+  dir: 'cloud-build'
   args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/gcp-iac-project', '.' ]
 
 # By default, all built docker images will be lost once the build is complete.
